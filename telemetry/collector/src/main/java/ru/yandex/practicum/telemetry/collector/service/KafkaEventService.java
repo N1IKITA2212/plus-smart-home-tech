@@ -3,22 +3,25 @@ package ru.yandex.practicum.telemetry.collector.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.telemetry.collector.model.hub.*;
 import ru.yandex.practicum.telemetry.collector.model.sensor.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaEventService implements EventService {
 
-    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
+    private final KafkaProducer<String, SpecificRecordBase> producer;
 
     @Value("${kafka.topics.sensors}")
     private String sensorsTopic;
@@ -31,7 +34,7 @@ public class KafkaEventService implements EventService {
     @Override
     public void collectSensorEvent(SensorEvent event) {
         SensorEventAvro avro = toAvro(event);
-        send(sensorsTopic, avro.getHubId(), avro);
+        send(sensorsTopic, avro.getHubId(), avro.getTimestamp(), avro);
         log.debug("Событие датчика отправлено в топик {}: {}", sensorsTopic, avro);
     }
 
@@ -91,7 +94,7 @@ public class KafkaEventService implements EventService {
     @Override
     public void collectHubEvent(HubEvent event) {
         HubEventAvro avro = toAvro(event);
-        send(hubsTopic, avro.getHubId(), avro);
+        send(hubsTopic, avro.getHubId(), avro.getTimestamp(), avro);
         log.debug("Событие хаба отправлено в топик {}: {}", hubsTopic, avro);
     }
 
@@ -154,7 +157,22 @@ public class KafkaEventService implements EventService {
                 .build();
     }
 
-    private void send(String topic, String key, SpecificRecordBase value) {
-        kafkaTemplate.send(new ProducerRecord<>(topic, key, value));
+    private void send(String topic, String hubId, long timestamp, SpecificRecordBase event) {
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
+                topic,
+                null,
+                timestamp,
+                hubId,
+                event
+        );
+        Future<RecordMetadata> futureResult = producer.send(record);
+        producer.flush();
+        try {
+            RecordMetadata metadata = futureResult.get();
+            log.info("Событие {} было успешно сохранёно в топик {} в партицию {} со смещением {}",
+                    event.getClass().getSimpleName(), metadata.topic(), metadata.partition(), metadata.offset());
+        } catch (InterruptedException | ExecutionException e) {
+            log.warn("Не удалось записать событие {} в топик {}", event.getClass().getSimpleName(), topic, e);
+        }
     }
 }
