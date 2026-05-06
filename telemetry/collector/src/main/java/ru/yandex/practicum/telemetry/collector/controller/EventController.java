@@ -36,41 +36,37 @@ public class EventController extends CollectorControllerGrpc.CollectorController
 
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        log.info("=== ENTERED collectSensorEvent: id={}, hubId={}, payloadCase={}",
+                request.getId(), request.getHubId(), request.getPayloadCase());
+        // Сначала отвечаем клиенту — gRPC deadline точно не успеет истечь
+        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onCompleted();
+        log.info("=== RESPONSE SENT for sensor id={}", request.getId());
+
+        // Обработку делаем ПОСЛЕ отправки ответа, чтобы любые исключения не влияли на gRPC
         try {
-            log.debug("Получено gRPC событие датчика: id={}, hubId={}", request.getId(), request.getHubId());
             eventService.collectSensorEvent(toModel(request));
-            responseObserver.onNext(Empty.getDefaultInstance());
-            responseObserver.onCompleted();
+            log.info("=== PROCESSED sensor id={}", request.getId());
         } catch (Throwable t) {
-            log.error("Ошибка обработки события датчика [{}]: {}", t.getClass().getName(), t.getMessage(), t);
-            try {
-                responseObserver.onError(Status.INTERNAL
-                        .withDescription(t.getMessage())
-                        .withCause(t)
-                        .asRuntimeException());
-            } catch (Throwable ignored) {
-                log.warn("Не удалось отправить onError клиенту (стрим уже закрыт): {}", ignored.getMessage());
-            }
+            log.error("Ошибка обработки события датчика [{}]: {} (id={})",
+                    t.getClass().getName(), t.getMessage(), request.getId(), t);
         }
     }
 
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        log.info("=== ENTERED collectHubEvent: hubId={}, payloadCase={}",
+                request.getHubId(), request.getPayloadCase());
+        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onCompleted();
+        log.info("=== RESPONSE SENT for hub hubId={}", request.getHubId());
+
         try {
-            log.debug("Получено gRPC событие хаба: hubId={}", request.getHubId());
             eventService.collectHubEvent(toModel(request));
-            responseObserver.onNext(Empty.getDefaultInstance());
-            responseObserver.onCompleted();
+            log.info("=== PROCESSED hub hubId={}", request.getHubId());
         } catch (Throwable t) {
-            log.error("Ошибка обработки события хаба [{}]: {}", t.getClass().getName(), t.getMessage(), t);
-            try {
-                responseObserver.onError(Status.INTERNAL
-                        .withDescription(t.getMessage())
-                        .withCause(t)
-                        .asRuntimeException());
-            } catch (Throwable ignored) {
-                log.warn("Не удалось отправить onError клиенту (стрим уже закрыт): {}", ignored.getMessage());
-            }
+            log.error("Ошибка обработки события хаба [{}]: {} (hubId={})",
+                    t.getClass().getName(), t.getMessage(), request.getHubId(), t);
         }
     }
 
