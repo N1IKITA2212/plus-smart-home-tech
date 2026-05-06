@@ -13,8 +13,6 @@ import ru.yandex.practicum.telemetry.collector.model.hub.*;
 import ru.yandex.practicum.telemetry.collector.model.sensor.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Slf4j
 @Service
@@ -165,14 +163,14 @@ public class KafkaEventService implements EventService {
                 hubId,
                 event
         );
-        Future<RecordMetadata> futureResult = producer.send(record);
-        producer.flush();
-        try {
-            RecordMetadata metadata = futureResult.get();
-            log.info("Событие {} было успешно сохранёно в топик {} в партицию {} со смещением {}",
-                    event.getClass().getSimpleName(), metadata.topic(), metadata.partition(), metadata.offset());
-        } catch (InterruptedException | ExecutionException e) {
-            log.warn("Не удалось записать событие {} в топик {}", event.getClass().getSimpleName(), topic, e);
-        }
+        producer.send(record, (metadata, exception) -> {
+            if (exception != null) {
+                log.warn("Не удалось записать событие {} в топик {}",
+                        event.getClass().getSimpleName(), topic, exception);
+            } else {
+                log.info("Событие {} было успешно сохранёно в топик {} в партицию {} со смещением {}",
+                        event.getClass().getSimpleName(), metadata.topic(), metadata.partition(), metadata.offset());
+            }
+        });
     }
 }
