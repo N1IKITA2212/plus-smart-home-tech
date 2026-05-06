@@ -1,6 +1,7 @@
 package ru.yandex.practicum.telemetry.collector.model.sensor;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -8,10 +9,11 @@ import lombok.ToString;
 @Setter
 @ToString(callSuper = true)
 public class SwitchSensorEvent extends SensorEvent {
-    private boolean state;
+    @NonNull
+    private Boolean state;
 
     @Override
-    public SensorEventType getSensorEventType() {
+    public SensorEventType getType() {
         return SensorEventType.SWITCH_SENSOR_EVENT;
     }
 }

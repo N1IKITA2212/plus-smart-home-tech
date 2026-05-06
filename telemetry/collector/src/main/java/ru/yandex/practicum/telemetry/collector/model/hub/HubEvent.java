@@ -16,10 +16,10 @@ import java.time.Instant;
         defaultImpl = HubEventType.class
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DeviceAddedEvent.class, name = "DEVICE_ADDED"),
-        @JsonSubTypes.Type(value = DeviceRemovedEvent.class, name = "DEVICE_REMOVED"),
-        @JsonSubTypes.Type(value = ScenarioAddedEvent.class, name = "SCENARIO_ADDED"),
-        @JsonSubTypes.Type(value = ScenarioRemovedEvent.class, name = "SCENARIO_REMOVED")
+        @JsonSubTypes.Type(value = DeviceAddedHubEvent.class, name = "DEVICE_ADDED"),
+        @JsonSubTypes.Type(value = DeviceRemovedHubEvent.class, name = "DEVICE_REMOVED"),
+        @JsonSubTypes.Type(value = ScenarioAddedHubEvent.class, name = "SCENARIO_ADDED"),
+        @JsonSubTypes.Type(value = ScenarioRemovedHubEvent.class, name = "SCENARIO_REMOVED")
 })
 @Getter
 @Setter
@@ -29,5 +29,5 @@ public abstract class HubEvent {
     private String hubId;
     private Instant timestamp = Instant.now();
 
-    public abstract HubEventType getHubEventType();
+    public abstract HubEventType getType();
 }

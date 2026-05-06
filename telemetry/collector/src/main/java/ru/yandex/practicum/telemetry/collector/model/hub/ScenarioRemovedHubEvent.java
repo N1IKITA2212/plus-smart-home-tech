@@ -1,7 +1,7 @@
 package ru.yandex.practicum.telemetry.collector.model.hub;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,14 +9,13 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class DeviceAddedEvent extends HubEvent {
+public class ScenarioRemovedHubEvent extends HubEvent {
     @NotBlank
-    private String id;
-    @NotNull
-    private DeviceType deviceType;
+    @Size(min = 3)
+    private String name;
 
     @Override
-    public HubEventType getHubEventType() {
-        return HubEventType.DEVICE_ADDED;
+    public HubEventType getType() {
+        return HubEventType.SCENARIO_REMOVED;
     }
 }

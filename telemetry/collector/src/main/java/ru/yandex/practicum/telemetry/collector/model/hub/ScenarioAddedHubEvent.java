@@ -11,18 +11,21 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
-public class ScenarioAddedEvent extends HubEvent {
-    @Size(min = 3)
+@ToString(callSuper = true)
+public class ScenarioAddedHubEvent extends HubEvent {
+
     @NotBlank
+    @Size(min = 3)
     private String name;
+
     @NotEmpty
     private List<ScenarioCondition> conditions;
+
     @NotEmpty
     private List<DeviceAction> actions;
 
     @Override
-    public HubEventType getHubEventType() {
+    public HubEventType getType() {
         return HubEventType.SCENARIO_ADDED;
     }
 }
