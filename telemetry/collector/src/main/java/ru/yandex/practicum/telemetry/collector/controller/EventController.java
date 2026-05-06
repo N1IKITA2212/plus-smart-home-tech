@@ -41,9 +41,16 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             eventService.collectSensorEvent(toModel(request));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
-        } catch (Exception e) {
-            log.error("Ошибка обработки события датчика", e);
-            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        } catch (Throwable t) {
+            log.error("Ошибка обработки события датчика [{}]: {}", t.getClass().getName(), t.getMessage(), t);
+            try {
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription(t.getMessage())
+                        .withCause(t)
+                        .asRuntimeException());
+            } catch (Throwable ignored) {
+                log.warn("Не удалось отправить onError клиенту (стрим уже закрыт): {}", ignored.getMessage());
+            }
         }
     }
 
@@ -54,9 +61,16 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             eventService.collectHubEvent(toModel(request));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
-        } catch (Exception e) {
-            log.error("Ошибка обработки события хаба", e);
-            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        } catch (Throwable t) {
+            log.error("Ошибка обработки события хаба [{}]: {}", t.getClass().getName(), t.getMessage(), t);
+            try {
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription(t.getMessage())
+                        .withCause(t)
+                        .asRuntimeException());
+            } catch (Throwable ignored) {
+                log.warn("Не удалось отправить onError клиенту (стрим уже закрыт): {}", ignored.getMessage());
+            }
         }
     }
 
