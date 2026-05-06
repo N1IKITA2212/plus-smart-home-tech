@@ -10,6 +10,6 @@ import lombok.ToString;
 public class ScenarioCondition {
     private String sensorId;
     private ConditionType type;
-    private ScenarioOperation operation;
+    private ConditionOperation operation;
     private Integer value;
 }
