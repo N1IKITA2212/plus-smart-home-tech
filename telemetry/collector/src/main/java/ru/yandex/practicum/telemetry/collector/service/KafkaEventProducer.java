@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class KafkaEventProducer {
-    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
+    private final KafkaTemplate<String, SpecificRecordBase> template;
 
     public void send(String topic, String key, SpecificRecordBase value) {
-        kafkaTemplate.send(topic, key, value);
+        template.send(topic, key, value);
     }
 }

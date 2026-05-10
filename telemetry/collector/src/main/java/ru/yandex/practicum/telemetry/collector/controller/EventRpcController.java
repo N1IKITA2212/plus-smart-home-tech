@@ -24,9 +24,9 @@ public class EventRpcController extends CollectorControllerGrpc.CollectorControl
 
     public EventRpcController(Set<HubEventHandler> hubHandlers, Set<SensorEventHandler> sensorHandlers) {
         this.hubEventHandlerMap = hubHandlers.stream()
-                .collect(Collectors.toMap(HubEventHandler::getMessageProtoType, Function.identity()));
+                .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
         this.sensorEventHandlerMap = sensorHandlers.stream()
-                .collect(Collectors.toMap(SensorEventHandler::getMessageProtoType, Function.identity()));
+                .collect(Collectors.toMap(SensorEventHandler::getMessageType, Function.identity()));
     }
 
     @Override

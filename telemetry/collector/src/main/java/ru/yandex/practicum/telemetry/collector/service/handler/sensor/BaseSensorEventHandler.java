@@ -4,7 +4,6 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
 import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 import ru.yandex.practicum.telemetry.collector.service.handler.SensorEventHandler;
 
@@ -21,24 +20,7 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
         this.eventProducer = eventProducer;
     }
 
-    protected abstract T mapToAvro(SensorEvent event);
-
     protected abstract T mapToAvro(SensorEventProto event);
-
-    @Override
-    public void handle(SensorEvent event) {
-
-        if (event == null)
-            throw new IllegalArgumentException("null event");
-
-        T sensorEventPayload = mapToAvro(event);
-        eventProducer.send(topic, event.getHubId(), SensorEventAvro.newBuilder()
-                .setId(event.getId())
-                .setHubId(event.getHubId())
-                .setTimestamp(event.getTimestamp())
-                .setPayload(sensorEventPayload)
-                .build());
-    }
 
     @Override
     public void handle(SensorEventProto eventProto) {
@@ -50,7 +32,7 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
         Instant timestamp = Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
                 eventProto.getTimestamp().getNanos());
 
-        eventProducer.send(topic, eventProto.getHubId(), SensorEventAvro.newBuilder()
+        eventProducer.send(topic, eventProto.getId(), SensorEventAvro.newBuilder()
                 .setId(eventProto.getId())
                 .setHubId(eventProto.getHubId())
                 .setTimestamp(timestamp)
