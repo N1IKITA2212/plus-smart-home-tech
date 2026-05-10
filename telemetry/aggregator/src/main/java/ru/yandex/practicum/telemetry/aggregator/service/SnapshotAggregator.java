@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorSnapshotAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +14,9 @@ import java.util.Optional;
 @Component
 public class SnapshotAggregator {
 
-    private final Map<String, SensorSnapshotAvro> snapshots = new HashMap<>();
+    private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
 
-    public Optional<SensorSnapshotAvro> updateState(SensorEventAvro event) {
+    public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
 
         if (!snapshots.containsKey(event.getHubId())) {
             Map<String, SensorStateAvro> stateAvroMap = new HashMap<>();
@@ -26,7 +26,7 @@ public class SnapshotAggregator {
                     .setData(event.getPayload())
                     .build());
 
-            SensorSnapshotAvro snapshot = SensorSnapshotAvro.newBuilder()
+            SensorsSnapshotAvro snapshot = SensorsSnapshotAvro.newBuilder()
                     .setHubId(event.getHubId())
                     .setTimestamp(event.getTimestamp())
                     .setSensorsState(stateAvroMap)
@@ -35,13 +35,13 @@ public class SnapshotAggregator {
             snapshots.put(snapshot.getHubId(), snapshot);
             return Optional.of(snapshot);
         } else {
-            SensorSnapshotAvro existingSnapshot = snapshots.get(event.getHubId());
+            SensorsSnapshotAvro existingSnapshot = snapshots.get(event.getHubId());
 
             String sensorId = event.getId();
 
             if (existingSnapshot.getSensorsState().containsKey(sensorId)) {
                 if (existingSnapshot.getSensorsState().get(sensorId).getTimestamp().isAfter(event.getTimestamp())) {
-                    log.info("Skip old event");
+                    log.info("skip old event");
                     return Optional.empty();
                 }
                 if (existingSnapshot.getSensorsState().get(sensorId).getData().equals(event.getPayload())) {

@@ -39,6 +39,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.enable-auto-commit}")
     private String autoCommit;
 
+    @Value("${spring.kafka.consumer.auto-offset-reset}")
+    private String autoOffset;
+
     @Bean
     public Producer<String, SpecificRecordBase> getProducer() {
         Properties properties = new Properties();
@@ -57,6 +60,7 @@ public class KafkaConfig {
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, autoCommit);
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
         return new KafkaConsumer<>(properties);
     }
 }

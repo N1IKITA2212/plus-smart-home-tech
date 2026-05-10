@@ -10,7 +10,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorSnapshotAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.telemetry.aggregator.service.SnapshotAggregator;
 
 import java.time.Duration;
@@ -40,7 +40,7 @@ public class AggregatorStarter {
 
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
                     SensorEventAvro sensorEventAvro = (SensorEventAvro) record.value();
-                    Optional<SensorSnapshotAvro> snapshotAvro = aggregator.updateState(sensorEventAvro);
+                    Optional<SensorsSnapshotAvro> snapshotAvro = aggregator.updateState(sensorEventAvro);
 
                     snapshotAvro.ifPresent(sensorSnapshotAvro -> {
                         ProducerRecord<String, SpecificRecordBase> pr = new ProducerRecord<>(snapshotTopic,
