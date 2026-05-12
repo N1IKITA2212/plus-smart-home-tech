@@ -3,6 +3,7 @@ package ru.yandex.practicum.telemetry.collector.service.handler.hub;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 import ru.yandex.practicum.telemetry.collector.service.handler.HubEventHandler;
 import ru.yandex.practicum.telemetry.collector.utils.HubEventMapper;
@@ -34,6 +35,11 @@ public abstract class BaseHubEventHandler<T extends SpecificRecordBase> implemen
         Instant timestamp = Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
                 eventProto.getTimestamp().getNanos());
 
-        eventProducer.send(topic, eventProto.getHubId(), timestamp.toEpochMilli(), hubEventPayload);
+        eventProducer.send(topic, eventProto.getHubId(), timestamp.toEpochMilli(),
+                HubEventAvro.newBuilder()
+                        .setHubId(eventProto.getHubId())
+                        .setTimestamp(timestamp)
+                        .setPayload(hubEventPayload)
+                        .build());
     }
 }

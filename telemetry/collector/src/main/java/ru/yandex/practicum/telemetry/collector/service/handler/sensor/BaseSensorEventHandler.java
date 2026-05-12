@@ -3,6 +3,7 @@ package ru.yandex.practicum.telemetry.collector.service.handler.sensor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 import ru.yandex.practicum.telemetry.collector.service.handler.SensorEventHandler;
 
@@ -31,6 +32,12 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
         Instant timestamp = Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
                 eventProto.getTimestamp().getNanos());
 
-        eventProducer.send(topic, eventProto.getHubId(), timestamp.toEpochMilli(), sensorEventPayload);
+        eventProducer.send(topic, eventProto.getHubId(), timestamp.toEpochMilli(),
+                SensorEventAvro.newBuilder()
+                        .setId(eventProto.getId())
+                        .setHubId(eventProto.getHubId())
+                        .setTimestamp(timestamp)
+                        .setPayload(sensorEventPayload)
+                        .build());
     }
 }
