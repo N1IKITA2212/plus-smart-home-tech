@@ -1,5 +1,6 @@
 package ru.yandex.practicum.telemetry.collector.service.handler.hub;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceAddedEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
@@ -10,8 +11,9 @@ import ru.yandex.practicum.telemetry.collector.utils.HubEventMapper;
 @Component(value = "DEVICE_ADDED")
 public class DeviceAddedHubEventHandler extends BaseHubEventHandler<DeviceAddedEventAvro> {
 
-    public DeviceAddedHubEventHandler(KafkaEventProducer producer, HubEventMapper mapper) {
-        super(producer, mapper);
+    public DeviceAddedHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
+                                      KafkaEventProducer producer, HubEventMapper mapper) {
+        super(topic, producer, mapper);
     }
 
     @Override
