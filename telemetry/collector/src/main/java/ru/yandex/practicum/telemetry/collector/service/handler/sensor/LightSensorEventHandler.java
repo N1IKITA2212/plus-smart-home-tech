@@ -1,5 +1,6 @@
 package ru.yandex.practicum.telemetry.collector.service.handler.sensor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.LightSensorProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
@@ -9,8 +10,9 @@ import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 @Component
 public class LightSensorEventHandler extends BaseSensorEventHandler<LightSensorAvro> {
 
-    public LightSensorEventHandler(KafkaEventProducer producer) {
-        super(producer);
+    public LightSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
+                                   KafkaEventProducer producer) {
+        super(topic, producer);
     }
 
     @Override

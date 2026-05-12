@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 public class KafkaEventProducer {
     private final KafkaProducer<String, SpecificRecordBase> producer;
 
-    private void send(String topic, String hubId, long timestamp, SpecificRecordBase event) {
+    public void send(String topic, String hubId, long timestamp, SpecificRecordBase event) {
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
                 topic,
                 null,

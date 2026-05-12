@@ -3,7 +3,6 @@ package ru.yandex.practicum.telemetry.collector.service.handler.sensor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.springframework.beans.factory.annotation.Value;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
-import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 import ru.yandex.practicum.telemetry.collector.service.handler.SensorEventHandler;
 
@@ -11,12 +10,12 @@ import java.time.Instant;
 
 public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> implements SensorEventHandler {
 
-    @Value("${kafka.topic.telemetry.sensors-topic}")
-    private String topic;
-
+    private final String topic;
     protected final KafkaEventProducer eventProducer;
 
-    public BaseSensorEventHandler(KafkaEventProducer eventProducer) {
+    public BaseSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
+                                  KafkaEventProducer eventProducer) {
+        this.topic = topic;
         this.eventProducer = eventProducer;
     }
 
@@ -32,11 +31,6 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
         Instant timestamp = Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
                 eventProto.getTimestamp().getNanos());
 
-        eventProducer.send(topic, eventProto.getId(), SensorEventAvro.newBuilder()
-                .setId(eventProto.getId())
-                .setHubId(eventProto.getHubId())
-                .setTimestamp(timestamp)
-                .setPayload(sensorEventPayload)
-                .build());
+        eventProducer.send(topic, eventProto.getHubId(), timestamp.toEpochMilli(), sensorEventPayload);
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.telemetry.collector.service.handler.sensor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SwitchSensorProto;
@@ -9,8 +10,9 @@ import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 @Component
 public class SwitchSensorEventHandler extends BaseSensorEventHandler<SwitchSensorAvro> {
 
-    public SwitchSensorEventHandler(KafkaEventProducer producer) {
-        super(producer);
+    public SwitchSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
+                                    KafkaEventProducer producer) {
+        super(topic, producer);
     }
 
     @Override
