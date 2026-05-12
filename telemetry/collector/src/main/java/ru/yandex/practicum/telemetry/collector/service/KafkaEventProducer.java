@@ -31,7 +31,7 @@ public class KafkaEventProducer {
             log.info("Событие {} было успешно сохранёно в топик {} в партицию {} со смещением {}",
                     event.getClass().getSimpleName(), metadata.topic(), metadata.partition(), metadata.offset());
         } catch (InterruptedException | ExecutionException e) {
-            log.warn("Не удалось записать событие {} в топик {}", event.getClass().getSimpleName(), topic, e);
+            log.warn("Не удалось записать событие {} в топик {} ", event.getClass().getSimpleName(), topic, e);
         }
     }
 }
