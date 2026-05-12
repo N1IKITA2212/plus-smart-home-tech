@@ -45,7 +45,9 @@ public class AggregatorStarter {
                     snapshotAvro.ifPresent(sensorSnapshotAvro -> {
                         ProducerRecord<String, SpecificRecordBase> pr = new ProducerRecord<>(snapshotTopic,
                                 sensorEventAvro.getHubId(), sensorSnapshotAvro);
-                        producer.send(pr);
+                        producer.send(pr, (metadata, exception) -> {
+                            if (exception != null) log.error("send failed", exception);
+                        });
                         log.info("sent: {}", pr);
                     });
                 }

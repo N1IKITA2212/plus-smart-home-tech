@@ -17,12 +17,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @GrpcService
-public class EventRpcController extends CollectorControllerGrpc.CollectorControllerImplBase {
+public class EventGrpcController extends CollectorControllerGrpc.CollectorControllerImplBase {
 
     private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlerMap;
     private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlerMap;
 
-    public EventRpcController(Set<HubEventHandler> hubHandlers, Set<SensorEventHandler> sensorHandlers) {
+    public EventGrpcController(Set<HubEventHandler> hubHandlers, Set<SensorEventHandler> sensorHandlers) {
         this.hubEventHandlerMap = hubHandlers.stream()
                 .collect(Collectors.toMap(HubEventHandler::getMessageType, Function.identity()));
         this.sensorEventHandlerMap = sensorHandlers.stream()

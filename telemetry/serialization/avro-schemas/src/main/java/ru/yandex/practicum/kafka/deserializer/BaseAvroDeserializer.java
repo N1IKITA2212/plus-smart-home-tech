@@ -25,7 +25,7 @@ public class BaseAvroDeserializer<T extends SpecificRecordBase> implements Deser
 
     @Override
     public T deserialize(String topic, byte[] bytes) {
-        if (bytes == null) {
+        if (bytes == null || bytes.length == 0) {
             return null;
         }
         try {

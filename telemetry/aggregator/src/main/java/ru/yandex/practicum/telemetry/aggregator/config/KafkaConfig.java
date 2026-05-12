@@ -6,61 +6,41 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
 @Configuration
+@EnableConfigurationProperties(KafkaProperties.class)
 public class KafkaConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String server;
+    private final KafkaProperties kafkaProperties;
 
-    @Value("${spring.kafka.producer.key-serializer}")
-    private String keySerializer;
-
-    @Value("${spring.kafka.consumer.key-deserializer}")
-    private String keyDeserializer;
-
-    @Value("${spring.kafka.producer.value-serializer}")
-    private String valueSerializer;
-
-    @Value("${spring.kafka.consumer.value-deserializer}")
-    private String valueDeserializer;
-
-    @Value("${spring.kafka.consumer.group-id}")
-    private String groupId;
-
-    @Value("${spring.kafka.consumer.client-id}")
-    private String clientId;
-
-    @Value("${spring.kafka.consumer.enable-auto-commit}")
-    private String autoCommit;
-
-    @Value("${spring.kafka.consumer.auto-offset-reset}")
-    private String autoOffset;
+    public KafkaConfig(KafkaProperties kafkaProperties) {
+        this.kafkaProperties = kafkaProperties;
+    }
 
     @Bean
     public Producer<String, SpecificRecordBase> getProducer() {
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getKeySerializer());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getValueSerializer());
         return new KafkaProducer<>(properties);
     }
 
     @Bean
     public KafkaConsumer<String, SpecificRecordBase> getConsumer() {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, autoCommit);
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getConsumer().getKeyDeserializer());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getConsumer().getValueDeserializer());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumer().getGroupId());
+        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaProperties.getConsumer().getClientId());
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaProperties.getConsumer().getEnableAutoCommit());
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaProperties.getConsumer().getAutoOffsetReset());
         return new KafkaConsumer<>(properties);
     }
 }
