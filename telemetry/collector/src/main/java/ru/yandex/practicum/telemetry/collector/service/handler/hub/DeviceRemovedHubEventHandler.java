@@ -11,9 +11,8 @@ import ru.yandex.practicum.telemetry.collector.utils.HubEventMapper;
 @Component(value = "DEVICE_REMOVED")
 public class DeviceRemovedHubEventHandler extends BaseHubEventHandler<DeviceRemovedEventAvro> {
 
-    public DeviceRemovedHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
-                                        KafkaEventProducer producer, HubEventMapper mapper) {
-        super(topic, producer, mapper);
+    public DeviceRemovedHubEventHandler(KafkaEventProducer producer, HubEventMapper mapper) {
+        super(producer, mapper);
     }
 
     @Override

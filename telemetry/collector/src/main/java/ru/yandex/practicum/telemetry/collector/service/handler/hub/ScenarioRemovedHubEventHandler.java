@@ -11,9 +11,8 @@ import ru.yandex.practicum.telemetry.collector.utils.HubEventMapper;
 @Component(value = "SCENARIO_REMOVED")
 public class ScenarioRemovedHubEventHandler extends BaseHubEventHandler<ScenarioRemovedEventAvro> {
 
-    public ScenarioRemovedHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
-                                          KafkaEventProducer producer, HubEventMapper mapper) {
-        super(topic, producer, mapper);
+    public ScenarioRemovedHubEventHandler(KafkaEventProducer producer, HubEventMapper mapper) {
+        super(producer, mapper);
     }
 
     @Override

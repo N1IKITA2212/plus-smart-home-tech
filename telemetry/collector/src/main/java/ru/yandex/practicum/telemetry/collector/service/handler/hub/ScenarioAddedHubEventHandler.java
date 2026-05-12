@@ -13,9 +13,8 @@ import java.util.List;
 @Component(value = "SCENARIO_ADDED")
 public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAddedEventAvro> {
 
-    public ScenarioAddedHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
-                                        KafkaEventProducer producer, HubEventMapper mapper) {
-        super(topic, producer, mapper);
+    public ScenarioAddedHubEventHandler(KafkaEventProducer producer, HubEventMapper mapper) {
+        super(producer, mapper);
     }
 
     @Override

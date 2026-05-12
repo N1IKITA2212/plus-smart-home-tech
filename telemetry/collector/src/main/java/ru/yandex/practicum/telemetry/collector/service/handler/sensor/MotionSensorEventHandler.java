@@ -10,9 +10,8 @@ import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 @Component
 public class MotionSensorEventHandler extends BaseSensorEventHandler<MotionSensorAvro> {
 
-    public MotionSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
-                                    KafkaEventProducer producer) {
-        super(topic, producer);
+    public MotionSensorEventHandler(KafkaEventProducer producer) {
+        super(producer);
     }
 
     @Override

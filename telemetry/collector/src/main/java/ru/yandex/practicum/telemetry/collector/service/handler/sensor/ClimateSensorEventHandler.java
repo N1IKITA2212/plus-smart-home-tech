@@ -10,9 +10,8 @@ import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 @Component
 public class ClimateSensorEventHandler extends BaseSensorEventHandler<ClimateSensorAvro> {
 
-    public ClimateSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
-                                     KafkaEventProducer producer) {
-        super(topic, producer);
+    public ClimateSensorEventHandler(KafkaEventProducer producer) {
+        super(producer);
     }
 
     @Override

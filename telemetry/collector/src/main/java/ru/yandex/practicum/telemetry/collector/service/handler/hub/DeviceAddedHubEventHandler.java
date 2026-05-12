@@ -11,9 +11,8 @@ import ru.yandex.practicum.telemetry.collector.utils.HubEventMapper;
 @Component(value = "DEVICE_ADDED")
 public class DeviceAddedHubEventHandler extends BaseHubEventHandler<DeviceAddedEventAvro> {
 
-    public DeviceAddedHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
-                                      KafkaEventProducer producer, HubEventMapper mapper) {
-        super(topic, producer, mapper);
+    public DeviceAddedHubEventHandler(KafkaEventProducer producer, HubEventMapper mapper) {
+        super(producer, mapper);
     }
 
     @Override

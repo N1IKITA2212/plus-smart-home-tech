@@ -10,12 +10,12 @@ import java.time.Instant;
 
 public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> implements SensorEventHandler {
 
-    private final String topic;
+    @Value("${kafka.topic.telemetry.sensors-topic}")
+    private String topic;
+
     protected final KafkaEventProducer eventProducer;
 
-    public BaseSensorEventHandler(@Value("${kafka.topic.telemetry.sensors-topic}") String topic,
-                                  KafkaEventProducer eventProducer) {
-        this.topic = topic;
+    public BaseSensorEventHandler(KafkaEventProducer eventProducer) {
         this.eventProducer = eventProducer;
     }
 

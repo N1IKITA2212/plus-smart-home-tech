@@ -11,13 +11,13 @@ import java.time.Instant;
 
 public abstract class BaseHubEventHandler<T extends SpecificRecordBase> implements HubEventHandler {
 
-    private final String topic;
+    @Value("${kafka.topic.telemetry.hubs-topic}")
+    private String topic;
+
     protected final KafkaEventProducer eventProducer;
     protected final HubEventMapper mapper;
 
-    public BaseHubEventHandler(@Value("${kafka.topic.telemetry.hubs-topic}") String topic,
-                               KafkaEventProducer eventProducer, HubEventMapper mapper) {
-        this.topic = topic;
+    public BaseHubEventHandler(KafkaEventProducer eventProducer, HubEventMapper mapper) {
         this.eventProducer = eventProducer;
         this.mapper = mapper;
     }
