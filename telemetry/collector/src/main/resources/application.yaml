@@ -16,3 +16,23 @@ spring:
       client:
         serviceUrl:
           defaultZone: http://localhost:8761/eureka/
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: ru.yandex.practicum.kafka.serializer.GeneralAvroSerializer
+    properties:
+      acks: all
+      linger.ms: 5
+      batch.size: 16384
+      buffer.memory: 33554432
+
+kafka:
+  topic:
+    telemetry:
+      sensors-topic: telemetry.sensors.v1
+      hubs-topic: telemetry.hubs.v1
+
+grpc:
+  server:
+    port: 59091

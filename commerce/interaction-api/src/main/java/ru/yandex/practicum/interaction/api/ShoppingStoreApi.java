@@ -1,5 +1,6 @@
 package ru.yandex.practicum.interaction.api;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.interaction.dto.*;
@@ -18,16 +19,16 @@ public interface ShoppingStoreApi {
     );
 
     @PutMapping("/api/v1/shopping-store")
-    ProductDto createNewProduct(@RequestBody ProductDto product);
+    ProductDto createNewProduct(@Valid @RequestBody ProductDto product);
 
     @PostMapping("/api/v1/shopping-store")
-    ProductDto updateProduct(@RequestBody ProductDto product);
+    ProductDto updateProduct(@Valid @RequestBody ProductDto product);
 
     @PostMapping("/api/v1/shopping-store/removeProductFromStore")
     boolean removeProductFromStore(@RequestBody UUID productId);
 
     @PostMapping("/api/v1/shopping-store/quantityState")
-    boolean setProductQuantityState(@RequestBody SetProductQuantityStateRequest request);
+    boolean setProductQuantityState(@Valid @RequestBody SetProductQuantityStateRequest request);
 
     @GetMapping("/api/v1/shopping-store/{productId}")
     ProductDto getProduct(@PathVariable UUID productId);

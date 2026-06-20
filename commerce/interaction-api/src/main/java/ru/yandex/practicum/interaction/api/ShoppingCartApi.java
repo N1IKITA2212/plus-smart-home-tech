@@ -1,5 +1,6 @@
 package ru.yandex.practicum.interaction.api;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.interaction.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.interaction.dto.ShoppingCartDto;
@@ -31,6 +32,6 @@ public interface ShoppingCartApi {
     @PostMapping("/api/v1/shopping-cart/change-quantity")
     ShoppingCartDto changeProductQuantity(
             @RequestParam String username,
-            @RequestBody ChangeProductQuantityRequest request
+            @Valid @RequestBody ChangeProductQuantityRequest request
     );
 }

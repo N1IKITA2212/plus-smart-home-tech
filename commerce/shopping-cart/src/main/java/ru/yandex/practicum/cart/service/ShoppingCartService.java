@@ -78,6 +78,7 @@ public class ShoppingCartService {
             throw new NoProductsInShoppingCartException("Product not in cart: " + request.getProductId());
         }
         cart.getProducts().put(request.getProductId(), request.getNewQuantity());
+        warehouseClient.checkProductQuantityEnoughForShoppingCart(toDto(cart));
         return toDto(cartRepository.save(cart));
     }
 
