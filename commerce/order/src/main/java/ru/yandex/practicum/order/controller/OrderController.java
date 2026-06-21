@@ -23,8 +23,8 @@ public class OrderController implements OrderApi {
     }
 
     @Override
-    public OrderDto createNewOrder(CreateNewOrderRequest request) {
-        return service.createNewOrder(request);
+    public OrderDto createNewOrder(String username, CreateNewOrderRequest request) {
+        return service.createNewOrder(username, request);
     }
 
     @Override

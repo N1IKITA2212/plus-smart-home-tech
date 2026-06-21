@@ -15,7 +15,7 @@ public interface OrderApi {
     List<OrderDto> getClientOrders(@RequestParam String username);
 
     @PutMapping("/api/v1/order")
-    OrderDto createNewOrder(@Valid @RequestBody CreateNewOrderRequest request);
+    OrderDto createNewOrder(@RequestParam String username, @Valid @RequestBody CreateNewOrderRequest request);
 
     @PostMapping("/api/v1/order/return")
     OrderDto productReturn(@RequestBody ProductReturnRequest request);

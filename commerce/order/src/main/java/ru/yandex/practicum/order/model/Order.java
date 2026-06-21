@@ -30,6 +30,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID orderId;
 
+    private String username;
+
     private UUID shoppingCartId;
 
     @ElementCollection

@@ -4,21 +4,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Map;
+import ru.yandex.practicum.interaction.dto.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler(NotEnoughInfoInOrderToCalculateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNotEnoughInfo(NotEnoughInfoInOrderToCalculateException e) {
-        return Map.of("httpStatus", "400 BAD_REQUEST", "userMessage", e.getMessage(), "message", e.getMessage());
+    public ErrorResponse handleNotEnoughInfo(NotEnoughInfoInOrderToCalculateException e) {
+        return build(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(NoPaymentFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNoPayment(NoPaymentFoundException e) {
-        return Map.of("httpStatus", "404 NOT_FOUND", "userMessage", e.getMessage(), "message", e.getMessage());
+    public ErrorResponse handleNoPayment(NoPaymentFoundException e) {
+        return build(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    private ErrorResponse build(HttpStatus status, String message) {
+        return ErrorResponse.builder()
+                .httpStatus(status.toString())
+                .userMessage(message)
+                .message(message)
+                .build();
     }
 }

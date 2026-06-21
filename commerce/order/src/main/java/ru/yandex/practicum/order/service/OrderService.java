@@ -30,14 +30,18 @@ public class OrderService {
         if (username == null || username.isBlank()) {
             throw new NotAuthorizedUserException("Username must not be empty");
         }
-        return repository.findAll().stream().map(this::toDto).toList();
+        return repository.findByUsername(username).stream().map(this::toDto).toList();
     }
 
     @Transactional
-    public OrderDto createNewOrder(CreateNewOrderRequest request) {
+    public OrderDto createNewOrder(String username, CreateNewOrderRequest request) {
+        if (username == null || username.isBlank()) {
+            throw new NotAuthorizedUserException("Username must not be empty");
+        }
         ShoppingCartDto cart = request.getShoppingCart();
 
         Order order = Order.builder()
+                .username(username)
                 .shoppingCartId(cart.getShoppingCartId())
                 .products(new HashMap<>(cart.getProducts()))
                 .state(OrderState.NEW)

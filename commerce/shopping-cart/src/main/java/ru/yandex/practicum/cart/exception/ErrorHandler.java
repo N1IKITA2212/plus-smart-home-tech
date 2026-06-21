@@ -4,27 +4,34 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Map;
+import ru.yandex.practicum.interaction.dto.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler(NotAuthorizedUserException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Map<String, String> handleNotAuthorized(NotAuthorizedUserException e) {
-        return Map.of("httpStatus", "401 UNAUTHORIZED", "userMessage", e.getMessage(), "message", e.getMessage());
+    public ErrorResponse handleNotAuthorized(NotAuthorizedUserException e) {
+        return build(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(NoProductsInShoppingCartException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNoProducts(NoProductsInShoppingCartException e) {
-        return Map.of("httpStatus", "400 BAD_REQUEST", "userMessage", e.getMessage(), "message", e.getMessage());
+    public ErrorResponse handleNoProducts(NoProductsInShoppingCartException e) {
+        return build(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(ProductInShoppingCartLowQuantityInWarehouse.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleLowQuantity(ProductInShoppingCartLowQuantityInWarehouse e) {
-        return Map.of("httpStatus", "400 BAD_REQUEST", "userMessage", e.getMessage(), "message", e.getMessage());
+    public ErrorResponse handleLowQuantity(ProductInShoppingCartLowQuantityInWarehouse e) {
+        return build(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    private ErrorResponse build(HttpStatus status, String message) {
+        return ErrorResponse.builder()
+                .httpStatus(status.toString())
+                .userMessage(message)
+                .message(message)
+                .build();
     }
 }
