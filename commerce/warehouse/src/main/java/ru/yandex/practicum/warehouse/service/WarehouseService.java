@@ -6,9 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.interaction.dto.*;
 import ru.yandex.practicum.warehouse.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.warehouse.exception.ProductInShoppingCartLowQuantityInWarehouse;
+import ru.yandex.practicum.warehouse.exception.ProductInShoppingCartNotInWarehouse;
 import ru.yandex.practicum.warehouse.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.warehouse.model.Dimension;
+import ru.yandex.practicum.warehouse.model.OrderBooking;
 import ru.yandex.practicum.warehouse.model.WarehouseProduct;
+import ru.yandex.practicum.warehouse.repository.OrderBookingRepository;
 import ru.yandex.practicum.warehouse.repository.WarehouseProductRepository;
 
 import java.security.SecureRandom;
@@ -24,6 +27,7 @@ public class WarehouseService {
             ADDRESSES[new SecureRandom().nextInt(0, ADDRESSES.length)];
 
     private final WarehouseProductRepository repository;
+    private final OrderBookingRepository orderBookingRepository;
 
     @Transactional
     public void newProductInWarehouse(NewProductInWarehouseRequest request) {
@@ -44,30 +48,48 @@ public class WarehouseService {
 
     @Transactional(readOnly = true)
     public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto cart) {
-        double totalWeight = 0;
-        double totalVolume = 0;
-        boolean hasFragile = false;
+        return calculateBooking(cart.getProducts());
+    }
 
-        for (Map.Entry<UUID, Long> entry : cart.getProducts().entrySet()) {
-            UUID productId = entry.getKey();
-            long requestedQty = entry.getValue();
+    @Transactional
+    public BookedProductsDto assemblyProductsForOrder(AssemblyProductsForOrderRequest request) {
+        BookedProductsDto booked = calculateBooking(request.getProducts());
 
+        request.getProducts().forEach((productId, qty) -> {
+            WarehouseProduct product = repository.findById(productId)
+                    .orElseThrow(() -> new ProductInShoppingCartNotInWarehouse(
+                            "Product not found in warehouse: " + productId));
+            product.setQuantity(product.getQuantity() - qty);
+            repository.save(product);
+        });
+
+        OrderBooking booking = OrderBooking.builder()
+                .orderId(request.getOrderId())
+                .products(request.getProducts())
+                .build();
+        orderBookingRepository.save(booking);
+
+        return booked;
+    }
+
+    @Transactional
+    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+        OrderBooking booking = orderBookingRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
+                        "Order booking not found: " + request.getOrderId()));
+        booking.setDeliveryId(request.getDeliveryId());
+        orderBookingRepository.save(booking);
+    }
+
+    @Transactional
+    public void acceptReturn(Map<UUID, Long> products) {
+        products.forEach((productId, qty) -> {
             WarehouseProduct product = repository.findById(productId)
                     .orElseThrow(() -> new NoSpecifiedProductInWarehouseException(
                             "Product not found in warehouse: " + productId));
-
-            if (product.getQuantity() < requestedQty) {
-                throw new ProductInShoppingCartLowQuantityInWarehouse(
-                        "Not enough quantity for product: " + productId);
-            }
-
-            totalWeight += product.getWeight() * requestedQty;
-            Dimension d = product.getDimension();
-            totalVolume += d.getWidth() * d.getHeight() * d.getDepth() * requestedQty;
-            if (product.isFragile()) hasFragile = true;
-        }
-
-        return new BookedProductsDto(totalWeight, totalVolume, hasFragile);
+            product.setQuantity(product.getQuantity() + qty);
+            repository.save(product);
+        });
     }
 
     @Transactional
@@ -87,5 +109,32 @@ public class WarehouseService {
                 .house(CURRENT_ADDRESS)
                 .flat(CURRENT_ADDRESS)
                 .build();
+    }
+
+    private BookedProductsDto calculateBooking(Map<UUID, Long> products) {
+        double totalWeight = 0;
+        double totalVolume = 0;
+        boolean hasFragile = false;
+
+        for (Map.Entry<UUID, Long> entry : products.entrySet()) {
+            UUID productId = entry.getKey();
+            long requestedQty = entry.getValue();
+
+            WarehouseProduct product = repository.findById(productId)
+                    .orElseThrow(() -> new ProductInShoppingCartNotInWarehouse(
+                            "Product not found in warehouse: " + productId));
+
+            if (product.getQuantity() < requestedQty) {
+                throw new ProductInShoppingCartLowQuantityInWarehouse(
+                        "Not enough quantity for product: " + productId);
+            }
+
+            totalWeight += product.getWeight() * requestedQty;
+            Dimension d = product.getDimension();
+            totalVolume += d.getWidth() * d.getHeight() * d.getDepth() * requestedQty;
+            if (product.isFragile()) hasFragile = true;
+        }
+
+        return new BookedProductsDto(totalWeight, totalVolume, hasFragile);
     }
 }
