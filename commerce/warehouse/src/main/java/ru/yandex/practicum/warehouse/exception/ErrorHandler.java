@@ -27,4 +27,10 @@ public class ErrorHandler {
     public Map<String, String> handleLowQuantity(ProductInShoppingCartLowQuantityInWarehouse e) {
         return Map.of("httpStatus", "400 BAD_REQUEST", "userMessage", e.getMessage(), "message", e.getMessage());
     }
+
+    @ExceptionHandler(ProductInShoppingCartNotInWarehouse.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleNotInWarehouse(ProductInShoppingCartNotInWarehouse e) {
+        return Map.of("httpStatus", "400 BAD_REQUEST", "userMessage", e.getMessage(), "message", e.getMessage());
+    }
 }

@@ -130,3 +130,5 @@ $RECYCLE.BIN/
 .claude/settings.local.json
 
 amplicode.xml
+
+.run-logs/
